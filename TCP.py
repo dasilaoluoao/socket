@@ -1,4 +1,6 @@
 # coding=utf-8
+import os
+import re
 from socket import *
 from random import randint
 from threading import Thread
@@ -17,7 +19,7 @@ class TCP:
 
     def get_random_data(self):
         string = 'QAZXSWEDCVFRTGBNHYUJMKIOLPqwertyuiopasdfghjklzxcvbnm1234567890`-=[];,./'
-        data = string[0:randint(1, len(string) - 1)] * randint(1, 1024 / len(string))
+        data = string[0:randint(1, len(string) - 1)] * randint(1, int(1024 / len(string)))
         return data
 
     def create_tcp_link(self):
@@ -39,7 +41,7 @@ class TCP:
 
 
 class Mythread(Thread):
-    'tcp link to h7,h8'
+    'tcp link to server10.0.0.3'
 
     def __init__(self, des_host, des_port, last):
         Thread.__init__(self)
@@ -54,14 +56,26 @@ class Mythread(Thread):
         sleep(0.001)
 
 
-hostid = input('hostid=')
-last = input('last=')
-des_host = ['10.0.0.7', '10.0.0.8']
+# hostname = ''
+# inf_line = os.popen("ifconfig").readlines()
+# for name in inf_line:
+#     inf_pattern = re.compile('\w*-eth0')
+#     inf = inf_pattern.search(name)
+#     if inf != None:
+#         hostname = inf.group().split('-')[0]
+# last = input('last=(s)')
+links_num = 10
+port = 12000
+# if hostname == 'normal':
+#     port = 12000
+# elif hostname == 'backgroud':
+#     port = 12010
+des_host = '10.0.0.3'
 user = []
-for i in range(2):
-    user.append(Mythread(des_host[i], 12000 + hostid, last))
+for i in range(links_num):
+    user.append(Mythread(des_host, port + i + 1, 2*60*60))
     user[i].start()
-    print('user start access to ' + des_host[i])
-for i in range(2):
+    print('user start access to ' + des_host + ': ' + str(port + i + 1))
+for i in range(links_num):
     user[i].join()
 print('access finish')
